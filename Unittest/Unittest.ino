@@ -14,13 +14,13 @@ extern "C" {
 #include <Flash.h>
 #include <SD.h>
 
-#include <TinyWebServer.h>
+#include <MiniWebServer.h>
 
-class TinyWebServerTest : public TinyWebServer {
+class MiniWebServerTest : public MiniWebServer {
 public:
-  TinyWebServerTest(PathHandler handlers[], const char** headers,
+  MiniWebServerTest(PathHandler handlers[], const char** headers,
 		    const _FLASH_STRING& content)
-    : TinyWebServer(handlers, headers),
+    : MiniWebServer(handlers, headers),
       content_(content),
       pos_(0) {}
 
@@ -74,64 +74,64 @@ void expect_true(boolean r) {
 }
 
 void test_decode_url_encoded() {
-  expect_str_eq("index.htm", TinyWebServer::decode_url_encoded("index%2Ehtm"));
-  expect_str_eq("index.", TinyWebServer::decode_url_encoded("index%2E"));
-  expect_str_eq("index%2", TinyWebServer::decode_url_encoded("index%2"));
-  expect_str_eq(".index", TinyWebServer::decode_url_encoded("%2Eindex"));
-  expect_str_eq("", TinyWebServer::decode_url_encoded(""));
+  expect_str_eq("index.htm", MiniWebServer::decode_url_encoded("index%2Ehtm"));
+  expect_str_eq("index.", MiniWebServer::decode_url_encoded("index%2E"));
+  expect_str_eq("index%2", MiniWebServer::decode_url_encoded("index%2"));
+  expect_str_eq(".index", MiniWebServer::decode_url_encoded("%2Eindex"));
+  expect_str_eq("", MiniWebServer::decode_url_encoded(""));
 
   // Invalid escape sequences
-  expect_str_eq("%GEhtm", TinyWebServer::decode_url_encoded("%GEhtm"));
-  expect_str_eq("%%Ehtm", TinyWebServer::decode_url_encoded("%%Ehtm"));
+  expect_str_eq("%GEhtm", MiniWebServer::decode_url_encoded("%GEhtm"));
+  expect_str_eq("%%Ehtm", MiniWebServer::decode_url_encoded("%%Ehtm"));
 }
 
 void test_get_file_from_path() {
-  expect_str_eq("", TinyWebServer::get_file_from_path("/"));
-  expect_str_eq("INDEX.HTM", TinyWebServer::get_file_from_path("/index%2Ehtm"));
+  expect_str_eq("", MiniWebServer::get_file_from_path("/"));
+  expect_str_eq("INDEX.HTM", MiniWebServer::get_file_from_path("/index%2Ehtm"));
   expect_str_eq("INDEX.HTM",
-  		TinyWebServer::get_file_from_path("/upload/index%2Ehtm"));
+  		MiniWebServer::get_file_from_path("/upload/index%2Ehtm"));
   expect_str_eq("INDEX.HTM",
-  		TinyWebServer::get_file_from_path("/a/b/index%2Ehtm"));
+  		MiniWebServer::get_file_from_path("/a/b/index%2Ehtm"));
 }
 
 void test_get_mime_type_from_filename() {
   uint16_t codes[9];
   uint16_t html_code;
 
-  codes[0] = TinyWebServer::get_mime_type_from_filename("index.htm");
-  html_code = TinyWebServer::get_mime_type_from_filename("INDEX.HTM");
+  codes[0] = MiniWebServer::get_mime_type_from_filename("index.htm");
+  html_code = MiniWebServer::get_mime_type_from_filename("INDEX.HTM");
   expect_num_eq(codes[0], html_code);
 
-  codes[1] = TinyWebServer::get_mime_type_from_filename("file.txt");
-  html_code = TinyWebServer::get_mime_type_from_filename("FILE.TXT");
+  codes[1] = MiniWebServer::get_mime_type_from_filename("file.txt");
+  html_code = MiniWebServer::get_mime_type_from_filename("FILE.TXT");
   expect_num_eq(codes[1], html_code);
 
-  codes[2] = TinyWebServer::get_mime_type_from_filename("style.css");
-  html_code = TinyWebServer::get_mime_type_from_filename("STYLE.CSS");
+  codes[2] = MiniWebServer::get_mime_type_from_filename("style.css");
+  html_code = MiniWebServer::get_mime_type_from_filename("STYLE.CSS");
   expect_num_eq(codes[2], html_code);
 
-  codes[3] = TinyWebServer::get_mime_type_from_filename("file.xml");
-  html_code = TinyWebServer::get_mime_type_from_filename("FILE.XML");
+  codes[3] = MiniWebServer::get_mime_type_from_filename("file.xml");
+  html_code = MiniWebServer::get_mime_type_from_filename("FILE.XML");
   expect_num_eq(codes[3], html_code);
 
-  codes[4] = TinyWebServer::get_mime_type_from_filename("img.gif");
-  html_code = TinyWebServer::get_mime_type_from_filename("IMG.GIF");
+  codes[4] = MiniWebServer::get_mime_type_from_filename("img.gif");
+  html_code = MiniWebServer::get_mime_type_from_filename("IMG.GIF");
   expect_num_eq(codes[4], html_code);
 
-  codes[5] = TinyWebServer::get_mime_type_from_filename("img.jpg");
-  html_code = TinyWebServer::get_mime_type_from_filename("IMG.JPG");
+  codes[5] = MiniWebServer::get_mime_type_from_filename("img.jpg");
+  html_code = MiniWebServer::get_mime_type_from_filename("IMG.JPG");
   expect_num_eq(codes[5], html_code);
 
-  codes[6] = TinyWebServer::get_mime_type_from_filename("img.png");
-  html_code = TinyWebServer::get_mime_type_from_filename("IMG.PNG");
+  codes[6] = MiniWebServer::get_mime_type_from_filename("img.png");
+  html_code = MiniWebServer::get_mime_type_from_filename("IMG.PNG");
   expect_num_eq(codes[6], html_code);
 
-  codes[7] = TinyWebServer::get_mime_type_from_filename("img.ico");
-  html_code = TinyWebServer::get_mime_type_from_filename("IMG.ICO");
+  codes[7] = MiniWebServer::get_mime_type_from_filename("img.ico");
+  html_code = MiniWebServer::get_mime_type_from_filename("IMG.ICO");
   expect_num_eq(codes[7], html_code);
 
-  codes[8] = TinyWebServer::get_mime_type_from_filename("p.mp3");
-  html_code = TinyWebServer::get_mime_type_from_filename("P.MP3");
+  codes[8] = MiniWebServer::get_mime_type_from_filename("p.mp3");
+  html_code = MiniWebServer::get_mime_type_from_filename("P.MP3");
   expect_num_eq(codes[8], html_code);
 
   for (int i = 0; i < 8; i++) {
@@ -145,22 +145,22 @@ void test_get_mime_type_from_filename() {
 void test_get_field() {
   {
     char b[] = "GET / HTTP/1.0";
-    expect_str_eq("GET", TinyWebServerTest::get_field_public(b, 0));
-    expect_str_eq("/", TinyWebServerTest::get_field_public(b, 1));
+    expect_str_eq("GET", MiniWebServerTest::get_field_public(b, 0));
+    expect_str_eq("/", MiniWebServerTest::get_field_public(b, 1));
     expect_str_eq("HTTP/1.0",
-                  TinyWebServerTest::get_field_public(b, 2));
+                  MiniWebServerTest::get_field_public(b, 2));
   }
 
   {
     char b[] = "  GET  /  HTTP/1.0  ";
-    expect_str_eq("GET", TinyWebServerTest::get_field_public(b, 0));
-    expect_str_eq("/", TinyWebServerTest::get_field_public(b, 1));
-    expect_str_eq("HTTP/1.0", TinyWebServerTest::get_field_public(b, 2));
+    expect_str_eq("GET", MiniWebServerTest::get_field_public(b, 0));
+    expect_str_eq("/", MiniWebServerTest::get_field_public(b, 1));
+    expect_str_eq("HTTP/1.0", MiniWebServerTest::get_field_public(b, 2));
   }
 
   {
     char b[] = "GET / HTTP/1.0";
-    expect_str_eq(NULL, TinyWebServerTest::get_field_public(b, 3));
+    expect_str_eq(NULL, MiniWebServerTest::get_field_public(b, 3));
   }
 }
 
@@ -177,7 +177,7 @@ void test_process_headers() {
     NULL
   };
 
-  TinyWebServerTest web(NULL, headers, content);
+  MiniWebServerTest web(NULL, headers, content);
   expect_true(web.process_headers());
   expect_str_eq("49209", (char*)web.get_header_value("Content-Length"),
 		false /* don't free the second argument */);
@@ -192,7 +192,7 @@ void test_process_broken_headers() {
 	       "User-Agent curl/7.19.7\r\n"
 	       );
 
-  TinyWebServerTest web(NULL, NULL, content);
+  MiniWebServerTest web(NULL, NULL, content);
   expect_true(!web.process_headers());
 }
 

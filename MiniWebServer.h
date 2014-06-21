@@ -5,15 +5,14 @@
 //
 // Updated: 08-JAN-2012 for Arduno IDE 1.0 by <Hardcore@hardcoreforensics.com>
 //
-// TinyWebServer for Arduino.
+// MiniWebServer for Arduino.
 
 #ifndef __WEB_SERVER_H__
 #define __WEB_SERVER_H__
 
 #include <Print.h>
 
-class SdFile;
-class TinyWebServer;
+class MiniWebServer;
 
 namespace TinyWebPutHandler {
   enum PutAction {
@@ -22,18 +21,18 @@ namespace TinyWebPutHandler {
     END
   };
 
-  typedef void (*HandlerFn)(TinyWebServer& web_server,
+  typedef void (*HandlerFn)(MiniWebServer& web_server,
 			    PutAction action,
 			    char* buffer, int size);
 
   // An HTTP handler that knows how to handle file uploads using the
   // PUT method. Set the `put_handler_fn' variable below to your own
   // function to handle the characters of the uploaded function.
-  boolean put_handler(TinyWebServer& web_server);
+  boolean put_handler(MiniWebServer& web_server);
   extern HandlerFn put_handler_fn;
 };
 
-class TinyWebServer : public Print {
+class MiniWebServer : public Print {
 public:
   // An HTTP path handler. The handler function takes the path it
   // registered for as argument, and the Client object to handle the
@@ -41,7 +40,7 @@ public:
   //
   // The function should return true if it finished handling the request
   // and the connection should be closed.
-  typedef boolean (*WebHandlerFn)(TinyWebServer& web_server);
+  typedef boolean (*WebHandlerFn)(MiniWebServer& web_server);
 
   enum HttpRequestType {
     UNKNOWN_REQUEST,
@@ -68,7 +67,7 @@ public:
   // interested in.
   //
   // NOTE: Make sure the header names are all lowercase.
-  TinyWebServer(PathHandler handlers[], const char** headers,
+  MiniWebServer(PathHandler handlers[], const char** headers,
                 const int port=80);
 
   // Call this method to start the HTTP server
@@ -129,13 +128,6 @@ public:
   // Guesses a MIME type based on the extension of `filename'. If none
   // could be guessed, the equivalent of text/html is returned.
   static MimeType get_mime_type_from_filename(const char* filename);
-
-  // Sends the contents of `file' to the currently connected
-  // client. The file must be opened in read mode.
-  //
-  // This is mainly an optimization to reuse the internal static
-  // buffer used by this class, which saves us some RAM.
-  void send_file(SdFile& file);
 
   // These methods write directly in the response stream of the
   // connected client

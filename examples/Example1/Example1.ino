@@ -9,38 +9,41 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <Flash.h>
-#include <SD.h>
-#include <TinyWebServer.h>
+#include <MiniWebServer.h>
 
 /****************VALUES YOU CHANGE*************/
-// pin 4 is the SPI select pin for the SDcard
-const int SD_CS = 4;
-
 // pin 10 is the SPI select pin for the Ethernet
 const int ETHER_CS = 10;
 
+//pin connected to RSTn on WIZ550io
+const byte WIZ_RST = 8;
+
 // Don't forget to modify the IP to an available one on your home network
-byte ip[] = { 192, 168, 5, 177 };
+byte ip[] = { 192, 168, 2, 73 };
 /*********************************************/
 
-static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+static uint8_t mac[] = {
+  0x00, 0x0B, 0xDC, 0x1D, 0x27, 0x90
+};
 
-boolean index_handler(TinyWebServer& web_server);
+boolean index_handler(MiniWebServer& web_server);
 
-TinyWebServer::PathHandler handlers[] = {
-  {"/", TinyWebServer::GET, &index_handler },
+MiniWebServer::PathHandler handlers[] = {
+  {"/", MiniWebServer::GET, &index_handler },
   {NULL},
 };
 
-boolean index_handler(TinyWebServer& web_server) {
+boolean index_handler(MiniWebServer& web_server) {
   web_server.send_error_code(200);
+  web_server.send_content_type("text/html");
   web_server.end_headers();
   web_server << F("<html><body><h1>Hello World!</h1></body></html>\n");
+  //web_server.print("<html><body><h1>Hello World!</h1></body></html>\n");
   return true;
 }
 
 boolean has_ip_address = false;
-TinyWebServer web = TinyWebServer(handlers, NULL);
+MiniWebServer web = MiniWebServer(handlers, NULL);
 
 const char* ip_to_str(const uint8_t* ipAddr)
 {
@@ -50,23 +53,20 @@ const char* ip_to_str(const uint8_t* ipAddr)
 }
 
 void setup() {
-  Serial.begin(115200);
-  Serial << F("Free RAM: ") << FreeRam() << "\n";
-
-  pinMode(SS_PIN, OUTPUT);	// set the SS pin as an output
-                                // (necessary to keep the board as
-                                // master and not SPI slave)
-  digitalWrite(SS_PIN, HIGH);	// and ensure SS is high
-
+  Serial.begin(57600);
   // Ensure we are in a consistent state after power-up or a reset
   // button These pins are standard for the Arduino w5100 Rev 3
   // ethernet board They may need to be re-jigged for different boards
   pinMode(ETHER_CS, OUTPUT);	// Set the CS pin as an output
   digitalWrite(ETHER_CS, HIGH);	// Turn off the W5100 chip! (wait for
-                                // configuration)
-  pinMode(SD_CS, OUTPUT);	// Set the SDcard CS pin as an output
-  digitalWrite(SD_CS, HIGH);	// Turn off the SD card! (wait for
-                                // configuration)
+
+  // restarting wiznet
+  pinMode(WIZ_RST, OUTPUT);
+  //initialise RSTn
+  digitalWrite(WIZ_RST, LOW);
+  delay(1);
+  digitalWrite(WIZ_RST, HIGH);
+  delay(500);
 
   // Initialize the Ethernet.
   Serial << F("Setting up the Ethernet card...\n");
@@ -75,6 +75,9 @@ void setup() {
   // Start the web server.
   Serial << F("Web server starting...\n");
   web.begin();
+
+  Serial << F("Server IP: ");
+  Serial.println(Ethernet.localIP());
 
   Serial << F("Ready to accept HTTP requests.\n\n");
 }

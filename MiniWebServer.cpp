@@ -6,12 +6,12 @@
 // Updated: 08-JAN-2012 for Arduno IDE 1.0 by <Hardcore@hardcoreforensics.com>
 // Updated: 29-MAR-2013 replacing strtoul with parseHexChar by <shin@marcsi.ch>
 //
-// TinyWebServer for Arduino.
+// MiniWebServer for Arduino.
 //
 // The DEBUG flag will enable serial console logging in this library
 // By default Debugging to the Serial console is OFF.
 // This ensures that any scripts using the Serial port are not corrupted
-// by the tinywebserver libraries debugging messages.
+// by the MiniWebServer libraries debugging messages.
 //
 // To ENABLE debugging set the following:
 // DEBUG 1 and ENSURE that you have configured the serial port in the
@@ -34,9 +34,8 @@ extern "C" {
 
 #include <Ethernet.h>
 #include <Flash.h>
-#include <SD.h>
 
-#include "TinyWebServer.h"
+#include "MiniWebServer.h"
 
 // Temporary buffer.
 static char buffer[160];
@@ -67,9 +66,9 @@ void *malloc_check(size_t size) {
 }
 
 // Offset for text/html in `mime_types' above.
-static const TinyWebServer::MimeType text_html_content_type = 4;
+static const MiniWebServer::MimeType text_html_content_type = 4;
 
-TinyWebServer::TinyWebServer(PathHandler handlers[],
+MiniWebServer::MiniWebServer(PathHandler handlers[],
 			     const char** headers,
                              const int port)
   : handlers_(handlers),
@@ -93,12 +92,12 @@ TinyWebServer::TinyWebServer(PathHandler handlers[],
   }
 }
 
-void TinyWebServer::begin() {
+void MiniWebServer::begin() {
   server_.begin();
 }
 
 // Process headers.
-boolean TinyWebServer::process_headers() {
+boolean MiniWebServer::process_headers() {
   if (headers_) {
     // First clear the header values from the previous HTTP request.
     for (int i = 0; headers_[i].header; i++) {
@@ -221,7 +220,7 @@ boolean TinyWebServer::process_headers() {
   return true;
 }
 
-void TinyWebServer::process() {
+void MiniWebServer::process() {
   client_ = server_.available();
   if (!client_.connected() || !client_.available()) {
     return;
@@ -292,7 +291,7 @@ void TinyWebServer::process() {
   free(request_type_str);
 }
 
-boolean TinyWebServer::is_requested_header(const char** header) {
+boolean MiniWebServer::is_requested_header(const char** header) {
   if (!headers_) {
     return false;
   }
@@ -305,7 +304,7 @@ boolean TinyWebServer::is_requested_header(const char** header) {
   return false;
 }
 
-boolean TinyWebServer::assign_header_value(const char* header, char* value) {
+boolean MiniWebServer::assign_header_value(const char* header, char* value) {
   if (!headers_) {
     return false;
   }
@@ -328,7 +327,7 @@ boolean TinyWebServer::assign_header_value(const char* header, char* value) {
 
 FLASH_STRING(content_type_msg, "Content-Type: ");
 
-void TinyWebServer::send_error_code(Client& client, int code) {
+void MiniWebServer::send_error_code(Client& client, int code) {
 #if DEBUG
   Serial << F("TWS:Returning ");
   Serial.println(code, DEC);
@@ -341,7 +340,7 @@ void TinyWebServer::send_error_code(Client& client, int code) {
   }
 }
 
-void TinyWebServer::send_content_type(MimeType mime_type) {
+void MiniWebServer::send_content_type(MimeType mime_type) {
   client_ << content_type_msg;
 
   char ch;
@@ -353,18 +352,18 @@ void TinyWebServer::send_content_type(MimeType mime_type) {
   client_.println();
 }
 
-void TinyWebServer::send_content_type(const char* content_type) {
+void MiniWebServer::send_content_type(const char* content_type) {
   client_ << content_type_msg;
   client_.println(content_type);
 }
 
-const char* TinyWebServer::get_path() { return path_; }
+const char* MiniWebServer::get_path() { return path_; }
 
-const TinyWebServer::HttpRequestType TinyWebServer::get_type() {
+const MiniWebServer::HttpRequestType MiniWebServer::get_type() {
   return request_type_;
 }
 
-const char* TinyWebServer::get_header_value(const char* name) {
+const char* MiniWebServer::get_header_value(const char* name) {
   if (!headers_) {
     return NULL;
   }
@@ -387,7 +386,7 @@ int parseHexChar(char ch) {
   return 0;
 }
 
-char* TinyWebServer::decode_url_encoded(const char* s) {
+char* MiniWebServer::decode_url_encoded(const char* s) {
   if (!s) {
     return NULL;
   }
@@ -427,7 +426,7 @@ char* TinyWebServer::decode_url_encoded(const char* s) {
   return r;
 }
 
-char* TinyWebServer::get_file_from_path(const char* path) {
+char* MiniWebServer::get_file_from_path(const char* path) {
   // Obtain the last path component.
   const char* encoded_fname = strrchr(path, '/');
   if (!encoded_fname) {
@@ -446,7 +445,7 @@ char* TinyWebServer::get_file_from_path(const char* path) {
   return decoded;
 }
 
-TinyWebServer::MimeType TinyWebServer::get_mime_type_from_filename(
+MiniWebServer::MimeType MiniWebServer::get_mime_type_from_filename(
     const char* filename) {
   MimeType r = text_html_content_type;
   if (!filename) {
@@ -485,29 +484,19 @@ TinyWebServer::MimeType TinyWebServer::get_mime_type_from_filename(
   return r;
 }
 
-void TinyWebServer::send_file(SdFile& file) {
-  size_t size;
-  while ((size = file.read(buffer, sizeof(buffer))) > 0) {
-    if (!client_.connected()) {
-      break;
-    }
-    write((uint8_t*)buffer, size);
-  }
-}
-
-size_t TinyWebServer::write(uint8_t c) {
+size_t MiniWebServer::write(uint8_t c) {
   client_.write(c);
 }
 
-size_t TinyWebServer::write(const char *str) {
+size_t MiniWebServer::write(const char *str) {
   client_.write(str);
 }
 
-size_t TinyWebServer::write(const uint8_t *buffer, size_t size) {
+size_t MiniWebServer::write(const uint8_t *buffer, size_t size) {
   client_.write(buffer, size);
 }
 
-boolean TinyWebServer::read_next_char(Client& client, uint8_t* ch) {
+boolean MiniWebServer::read_next_char(Client& client, uint8_t* ch) {
   if (!client.available()) {
     return false;
   } else {
@@ -516,7 +505,7 @@ boolean TinyWebServer::read_next_char(Client& client, uint8_t* ch) {
   }
 }
 
-boolean TinyWebServer::get_line(char* buffer, int size) {
+boolean MiniWebServer::get_line(char* buffer, int size) {
   int i = 0;
   char ch;
 
@@ -537,7 +526,7 @@ boolean TinyWebServer::get_line(char* buffer, int size) {
 // Returns a newly allocated string containing the field number `which`.
 // The first field's index is 0.
 // The caller is responsible for freeing the returned value.
-char* TinyWebServer::get_field(const char* buffer, int which) {
+char* MiniWebServer::get_field(const char* buffer, int which) {
   char* field = NULL;
   boolean prev_is_space = false;
   int i = 0;
@@ -588,7 +577,7 @@ HandlerFn put_handler_fn = NULL;
 
 // Fills in `buffer' by reading up to `num_bytes'.
 // Returns the number of characters read.
-int read_chars(TinyWebServer& web_server, Client& client,
+int read_chars(MiniWebServer& web_server, Client& client,
                uint8_t* buffer, int size) {
   uint8_t ch;
   int pos;
@@ -598,7 +587,7 @@ int read_chars(TinyWebServer& web_server, Client& client,
   return pos;
 }
 
-boolean put_handler(TinyWebServer& web_server) {
+boolean put_handler(MiniWebServer& web_server) {
   web_server.send_error_code(200);
   web_server.end_headers();
 
