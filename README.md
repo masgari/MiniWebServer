@@ -52,6 +52,9 @@ URLs. Here is a simple example of a web server with a single handler.
 
     static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
+    //pin connected to RSTn on WIZ550io
+    const byte WIZ_RST = 8;
+
     boolean index_handler(MiniWebServer& web_server) {
       web_server.send_error_code(200);
       web_server << F("<html><body><h1>Hello World!</h1></body></html>\n");
@@ -70,6 +73,15 @@ URLs. Here is a simple example of a web server with a single handler.
 
     void setup() {
       Serial.begin(115200);
+      
+      // restarting wiznet
+      pinMode(WIZ_RST, OUTPUT);
+      //initialise RSTn
+      digitalWrite(WIZ_RST, LOW);
+      delay(1);
+      digitalWrite(WIZ_RST, HIGH);
+      delay(500);
+      
       EthernetDHCP.begin(mac);
       web.begin();
     }
