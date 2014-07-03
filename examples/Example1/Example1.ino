@@ -60,7 +60,7 @@ void setup() {
   pinMode(ETHER_CS, OUTPUT);	// Set the CS pin as an output
   digitalWrite(ETHER_CS, HIGH);	// Turn off the W5100 chip! (wait for
 
-  // restarting wiznet
+  // resetting Wiznet
   pinMode(WIZ_RST, OUTPUT);
   //initialise RSTn
   digitalWrite(WIZ_RST, LOW);
