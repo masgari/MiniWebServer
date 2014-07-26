@@ -23,65 +23,64 @@ byte ip[] = { 192, 168, 2, 73 };
 /*********************************************/
 
 static uint8_t mac[] = {
-  0x00, 0x0B, 0xDC, 0x1D, 0x27, 0x90
+    0x00, 0x0B, 0xDC, 0x1D, 0x27, 0x90
 };
 
 boolean index_handler(MiniWebServer& web_server);
 
 MiniWebServer::PathHandler handlers[] = {
-  {"/", MiniWebServer::GET, &index_handler },
-  {NULL},
+    {"/", MiniWebServer::GET, &index_handler },
+    {NULL},
 };
 
 boolean index_handler(MiniWebServer& web_server) {
-  web_server.send_error_code(200);
-  web_server.send_content_type("text/html");
-  web_server.end_headers();
-  web_server << F("<html><body><h1>Hello World!</h1></body></html>\n");
-  //web_server.print("<html><body><h1>Hello World!</h1></body></html>\n");
-  return true;
+    web_server.send_error_code(200);
+    web_server.send_content_type("text/html");
+    web_server.end_headers();
+    web_server << F("<html><body><h1>Hello World!</h1></body></html>\n");
+    //web_server.print("<html><body><h1>Hello World!</h1></body></html>\n");
+    return true;
 }
 
 boolean has_ip_address = false;
 MiniWebServer web = MiniWebServer(handlers, NULL);
 
-const char* ip_to_str(const uint8_t* ipAddr)
-{
-  static char buf[16];
-  sprintf(buf, "%d.%d.%d.%d\0", ipAddr[0], ipAddr[1], ipAddr[2], ipAddr[3]);
-  return buf;
+const char* ip_to_str(const uint8_t* ipAddr) {
+    static char buf[16];
+    sprintf(buf, "%d.%d.%d.%d\0", ipAddr[0], ipAddr[1], ipAddr[2], ipAddr[3]);
+    return buf;
 }
 
 void setup() {
-  Serial.begin(57600);
-  // Ensure we are in a consistent state after power-up or a reset
-  // button These pins are standard for the Arduino w5100 Rev 3
-  // ethernet board They may need to be re-jigged for different boards
-  pinMode(ETHER_CS, OUTPUT);	// Set the CS pin as an output
-  digitalWrite(ETHER_CS, HIGH);	// Turn off the W5100 chip! (wait for
+    Serial.begin(57600);
+    // Ensure we are in a consistent state after power-up or a reset
+    // button These pins are standard for the Arduino w5100 Rev 3
+    // ethernet board They may need to be re-jigged for different boards
+    pinMode(ETHER_CS, OUTPUT);	// Set the CS pin as an output
+    digitalWrite(ETHER_CS, HIGH);	// Turn off the W5100 chip! (wait for
 
-  // resetting Wiznet
-  pinMode(WIZ_RST, OUTPUT);
-  //initialise RSTn
-  digitalWrite(WIZ_RST, LOW);
-  delay(1);
-  digitalWrite(WIZ_RST, HIGH);
-  delay(500);
+    // resetting Wiznet
+    pinMode(WIZ_RST, OUTPUT);
+    //initialise RSTn
+    digitalWrite(WIZ_RST, LOW);
+    delay(1);
+    digitalWrite(WIZ_RST, HIGH);
+    delay(500);
 
-  // Initialize the Ethernet.
-  Serial << F("Setting up the Ethernet card...\n");
-  Ethernet.begin(mac, ip);
+    // Initialize the Ethernet.
+    Serial << F("Setting up the Ethernet card...\n");
+    Ethernet.begin(mac, ip);
 
-  // Start the web server.
-  Serial << F("Web server starting...\n");
-  web.begin();
+    // Start the web server.
+    Serial << F("Web server starting...\n");
+    web.begin();
 
-  Serial << F("Server IP: ");
-  Serial.println(Ethernet.localIP());
+    Serial << F("Server IP: ");
+    Serial.println(Ethernet.localIP());
 
-  Serial << F("Ready to accept HTTP requests.\n\n");
+    Serial << F("Ready to accept HTTP requests.\n\n");
 }
 
 void loop() {
-  web.process();
+    web.process();
 }
